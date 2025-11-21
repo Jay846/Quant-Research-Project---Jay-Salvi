@@ -24,8 +24,25 @@ Volatility pairs trading strategy on Nifty and BankNifty implied volatility (10-
 Raw spread is not tradable on medium frequency.  
 Dynamic hedging via data-driven Kalman Filter unlocks strong, realistic alpha.
 
-Full code, results, and inline plots in the Jupyter notebook.
+# Why the Raw Spread Fails
+BankNifty IV is almost always higher than Nifty IV (structural bias from higher banking sector volatility).  
+The raw spread drifts slowly over time → rolling mean follows the drift → z-score rarely crosses reasonable thresholds.  
+Result: the base model (exactly as requested) generates almost no signals at normal entry levels.
 
+## Why Kalman Dynamic Hedging Works
+To remove the drift, we need a time-varying hedge ratio βₜ instead of fixed β = 1.
+
+I used a Kalman Filter because:
+- It naturally estimates βₜ online from noisy observations
+- Parameters are derived directly from the data (transition covariance = variance of daily beta changes) → regime-adaptive
+- Produces a truly stationary hedged spread → strong mean-reversion on medium frequency
+
+This is the standard approach used in professional volatility pairs books.
+
+## Execution Realism
+- Vega scaling: TTE^0.7 (industry proxy)
+- Transaction costs: 35 bps per IV point round-trip (conservative for Indian index options — includes brokerage, STT, slippage)
+- Costs eat ~68% of gross profit → honest performance
 
 
 
